@@ -1,0 +1,105 @@
+
+
+{% block title %}Hello ConnectionController!
+{% endblock %}
+
+{% block body %}
+{% if error is defined %}
+{% if error %}
+    <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+{% endif %}
+{% endif %}
+       <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Favicon -->
+  <link rel="icon" href="/img/logo_with.png" type="image/png">
+  <!-- Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
+  <!-- Icons -->
+  <link rel="stylesheet" href="/assets/vendor/nucleo/css/nucleo.css" type="text/css">
+  <link rel="stylesheet" href="/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
+  <!-- Page plugins -->
+  <!-- Argon CSS -->
+  <link rel="stylesheet" href="/assets/css/argon.css?v=1.2.0" type="text/css">
+        <script src="https://kit.fontawesome.com/f682f79496.js" crossorigin="anonymous"></script>
+	<style>
+		.example-wrapper {
+			margin: 1em auto;
+			max-width: 800px;
+			width: 95%;
+			font: 18px / 1.5 sans-serif;
+		}
+		.example-wrapper code {
+			background: #F5F5F5;
+			padding: 2px 6px;
+		}
+		body,
+		html {
+			height: 100%;
+			background-color: #19B074;
+		}
+	</style>
+  <META Http-Equiv="Cache-Control" Content="no-cache">
+<META Http-Equiv="Pragma" Content="no-cache">
+<META Http-Equiv="Expires" Content="0">
+	<div class="container-fluid " style="height:100%;">
+		<div class="row " style="height:100%;align-content: center;margin-top:-30px;    justify-content: center;">
+			<div class="card" style="width: 18rem;">
+				<img src="/img/logo_with.png" class="card-img-top" alt="...">
+				<div class="card-body">
+					<h5 class="card-title" style="text-align:center;">
+						<button type="button" class="btn " data-toggle="modal" data-target="#exampleModal">
+							Bienvenu a colory<spam style="color:#19B074;">Admin</spam>
+							<img src="https://img.icons8.com/material-outlined/24/000000/info.png"/>
+						</button>
+					</h5>
+					<!-- Button trigger modal -->
+
+
+					<!-- Modal -->
+					<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="exampleModalLabel">Important</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									Se site est reserve uniquement a l'administrateur de l'application mobilia colory.</br>
+								Si vous rencontrer un probleme veuillez envoyer un mail a l'adresse suivante avec la description du probleme , un developpeur vous contactera dans les 24h qui suivent .
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<form action="{{path('login')}}" method="post">
+					<div class="form-group">
+						<input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email"  required name="_email">
+						<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+					</div>
+					<div class="form-group">
+						<input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" required name="_pasword">
+					</div>
+					<div class="form-group" style="text-align-last: center;">
+						<input type="submit" class="btn btn-success" value="Se connecter">
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div></div>
+  <script src="/assets/vendor/jquery/dist/jquery.min.js"></script>
+  <script src="/assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/vendor/js-cookie/js.cookie.js"></script>
+  <script src="/assets/vendor/jquery.scrollbar/jquery.scrollbar.min.js"></script>
+  <script src="/assets/vendor/jquery-scroll-lock/dist/jquery-scrollLock.min.js"></script>
+  <!-- Optional JS -->
+  <script src="/assets/vendor/chart.js/dist/Chart.min.js"></script>
+  <script src="/assets/vendor/chart.js/dist/Chart.extension.js"></script>
+  <!-- Argon JS -->
+  <script src="/assets/js/argon.js?v=1.2.0"></script>
+{% endblock %}

@@ -1,0 +1,398 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello OffreController!
+{% endblock %}
+
+{% block body %}
+  
+
+	<style>
+	input[type="search" i]{
+		transition: background-color .3s linear;
+    transition-delay: .15s;
+    border: 1 solid;
+    border-radius: 2rem;
+	border-color: rgba(0, 0, 0, .6);
+    background-color: rgba(255, 255, 255, .9);
+}
+
+
+
+
+
+
+	}
+	#myTable_filter{
+		color: red;
+	}
+		.example-wrapper {
+			margin: 1em auto;
+			max-width: 800px;
+			width: 95%;
+			font: 18px / 1.5 sans-serif;
+		}
+		.example-wrapper code {
+			background: #F5F5F5;
+			padding: 2px 6px;
+		}
+		.contente {
+			color: #757575;
+		}
+		.user {
+			position: relative;
+			top: 50px;
+			-webkit-animation: upDown 3s infinite normal linear;
+			animation: upDown 3s infinite linear;
+		}
+
+		.user1,
+		.user3,
+		.user5 {
+			-webkit-animation: upDown1 4s infinite normal linear;
+			animation: upDown1 4s infinite linear;
+		}
+
+		.user2,
+		.user4,
+		.user6 {
+			-webkit-animation: upDown1 2s infinite normal linear;
+			animation: upDown1 2s infinite linear;
+		}
+
+		.user7,
+		.user8,
+		.user9 {
+			-webkit-animation: upDown1 2s infinite normal linear;
+			animation: upDown1 2s infinite linear;
+		}
+
+		.user10,
+		.user11,
+		.user12 {
+			-webkit-animation: upDown1 2s infinite normal linear;
+			animation: upDown1 2s infinite linear;
+		}
+		@-webkit-keyframes upDown1 {
+			from {
+				-webkit-transform: rotate(0deg) translate3d(3px, 0, 0) rotate(0deg);
+			}
+
+			to {
+				-webkit-transform: rotate(360deg) translate3d(3px, 0, 0) rotate(-360deg);
+			}
+
+		}
+		@keyframes upDown {
+			from {
+				-webkit-transform: rotate(0deg) translate3d(3px, 0, 0) rotate(0deg);
+			}
+
+			to {
+				-webkit-transform: rotate(360deg) translate3d(3px, 0, 0) rotate(-360deg);
+			}
+
+		}
+
+
+		@-webkit-keyframes upDown {
+			from {
+				-webkit-transform: rotate(0deg) translate3d(3px, 0, 0) rotate(0deg);
+			}
+
+			to {
+				-webkit-transform: rotate(360deg) translate3d(3px, 0, 0) rotate(-360deg);
+			}
+
+		}
+		@keyframes upDown {
+			from {
+				-webkit-transform: rotate(0deg) translate3d(3px, 0, 0) rotate(0deg);
+			}
+
+			to {
+				-webkit-transform: rotate(360deg) translate3d(3px, 0, 0) rotate(-360deg);
+			}
+
+		}
+	</style>
+
+	<div class="table-responsive">
+		<table class="table align-items-center table-flush" id="myTable">
+			{% if offres != null and Vendeur == null  %}
+
+				<thead class="thead-light">
+					<tr>
+						<th scope="col" class="sort" data-sort="name">Titre Offre</th>
+						<th scope="col" class="sort" data-sort="budget">Prix</th>
+						<th scope="col" class="sort" data-sort="status">Status</th>
+						<th scope="col">Vendeur</th>
+						<th scope="col" class="sort" data-sort="completion">Signalement</th>
+						<th scope="col"></th>
+					</tr>
+				</thead>
+
+			{% endif %}
+			<tbody class="list">
+				{% if offres == null  and Vendeur == null  %}
+					<div class="container-fluid" style="text-align: center;">
+						<img alt="Image placeholder" src="/img/OffreEmpty.gif" style="height:100%;">
+						<h2>
+							Aucune offre n'a été publié
+						</h2>
+					</div>
+				{% elseif Vendeur != null and offres|length <= 0 %}
+					<div class="container-fluid" style="text-align: center;">
+						<img alt="Image placeholder" src="/img/OffreEmpty.gif" style="height:100%;">
+						<h2>
+							Ce vendeur na encore rien publié
+						</h2>
+					</div>
+				{% else %}
+					{% for Offre in offres %}
+						<tr>
+							<th scope="row">
+								<div class="media align-items-center">
+									<a href="#" class="avatar rounded-circle mr-3">
+										{% if Offre.images|length > 0 %}
+											{% for v in Offre.images %}
+												{% if loop.index == 1 %}
+													<img alt="Image placeholder" src={{ v.url }} style="height:100%">
+												{% endif %}
+											{% endfor %}
+										{% else %}
+											<img alt="Image placeholder" src="/img/logo_black.png" style="height:100%">
+										{% endif %}
+									</a>
+									<div class="media-body">
+										<span class="name mb-0 text-sm">{{ Offre.titre }}</span>
+									</div>
+								</div>
+							</th>
+							<td class="budget">
+
+
+								{{ (Offre.prix)|number_format(2, ',', '.')  }}
+								DH
+
+							</td>
+							<td>
+								<span class="badge badge-dot mr-4">
+									{% if Offre.Statue == "en ligne" %}
+										<i class="bg-success"></i>
+									{% elseif Offre.Statue == "vendu" %}
+										<i class="bg-danger"></i>
+									{% else %}
+										<i class="bg-warning"></i>
+									{% endif %}
+
+									<span class="status">{{ Offre.Statue }}</span>
+									{% if  Offre.Statue == "En cour de verification" %}
+										<a type="button" class="btn btn-success" href="{{ path ('Valide', {'idV' : Offre.id })}}" onclick="return confirm('Vous avez vraiment Verifier cette offre ? ' )">Validé</a>
+									{% endif %}
+								</span>
+							</td>
+							<td>
+								<div class="avatar-group">
+									<a href="#" class="avatar avatar-sm rounded-circle" data-toggle="tooltip" data-original-title="{{ Offre.vendeur.user.nom }} {{ Offre.vendeur.user.prenom }}">
+										{% if Offre.vendeur.user.image != null %}
+										<img alt="Image placeholder" src={{ Offre.vendeur.user.image.url }} style="height:100%;object-fit: cover;">
+										{% else %}
+										<img alt="Image placeholder" src="/img/logo_black.png" style="height:100%;object-fit: cover;">
+										{% endif %}
+
+									</a>
+								</div>
+							</td>
+							<td>
+
+								{% set countU = user|length() %}
+								{% set signalPerc =  Offre.signalements|length() %}
+								{% set perc = (signalPerc/countU)*100 %}
+
+
+								<div class="d-flex align-items-center" data-toggle="tooltip" data-original-title="{{ signalPerc }} sur {{ countU }} personnes on signaler cette offre 🦠">
+
+									<span class="completion mr-2 count">{{ perc|number_format(0) }}
+										%</span>
+									<script></script>
+									<div>
+
+										<div class="progress">
+											<div class="progress-bar
+																						{% if  perc|number_format(0) <= 40 %}
+																						bg-success
+																						{% elseif (perc|number_format(0) <= 60) and (perc|number_format(0) > 40) %}
+																						bg-warning
+																						{% elseif (perc|number_format(0) <= 90) and (perc|number_format(0) > 60) %}
+																						bg-danger
+																						{% else %}
+																						bg-dark
+																						{% endif %}
+												
+																						" role="progressbar" style="width: {{ perc|number_format(0) }}%;"></div>
+										</div>
+									</div>
+								</div>
+							</td>
+							<td class="text-right">
+								<div class="dropdown">
+									<a class="btn btn-sm btn-icon-only text-light" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<i class="fas fa-ellipsis-v"></i>
+									</a>
+									<div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
+										{% set count = 0 %}
+										<a class="dropdown-item my" class="btn btn-primary" data-toggle="modal" data-target="#{{ Offre.titre|slice(0,3) }}44{{Offre.id}}">Voir l'offre
+										</a>
+										<a class="dropdown-item" href="{{ path ('DeleteOffre', {'idS' : Offre.id })}}">Supprimer</a>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<!-- Modal -->
+						<div class="modal fade" id="{{ Offre.titre|slice(0,3) }}44{{Offre.id}}" tabindex="-1" role="dialog" data aria-labelledby="exampleModalLabel" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title mytitle" id="exampleModalLabel">{{ Offre.titre }}</h5>
+
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div class="modal-body">
+										<div id="{{ Offre.titre|slice(0,3) }}33{{Offre.id}}" class="carousel slide" data-ride="carousel">
+											{% if Offre.images|length > 0 %}
+
+												<ol class="carousel-indicators">
+													{% for vp in Offre.images %}
+														{% if loop.index == 1 %}
+															<li data-target="#{{ Offre.titre|slice(0,3) }}33{{Offre.id}}" data-slide-to={{ loop.index }} class="active"></li>
+														{% else %}
+															<li data-target="#{{ Offre.titre|slice(0,3) }}33{{Offre.id}}" data-slide-to={{ loop.index }}></li>
+														{% endif %}
+													{% endfor %}
+												</ol>
+												<div class="carousel-inner">
+													{% for vp in Offre.images %}
+														{% if loop.index == 1 %}
+															<div class="carousel-item active">
+																<img class="d-block w-100" src={{ vp.url }} style="height:100%">
+															</div>
+
+														{% else %}
+															<div class="carousel-item ">
+																<img class="d-block w-100" src={{ vp.url }} style="height:100%">
+															</div>
+														{% endif %}
+													{% endfor %}
+												</div>
+												<a class="carousel-control-prev" href="#{{ Offre.titre|slice(0,3) }}33{{Offre.id}}" role="button" data-slide="prev">
+													<i class="fas fa-chevron-left" style="color: black;font-size: 30px;"></i>
+													<span class="sr-only">Previous</span>
+												</a>
+												<a class="carousel-control-next" href="#{{ Offre.titre|slice(0,3) }}33{{Offre.id}}" role="button" data-slide="next">
+													<i class="fas fa-chevron-right" style="color: black;font-size: 30px;"></i>
+													<span class="sr-only">Next</span>
+												</a>
+											{% else %}
+												<ol class="carousel-indicators">
+													<li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+
+												</ol>
+												<div class="carousel-inner">
+													<div class="carousel-item active">
+
+														<div style="height:300px;width:500px;text-align-last: center;">
+															<img class="user1" src="/img/Ellipse1.png" style="position:absolute;top:10px;left:250px;">
+															<img class="user2" src="/img/Ellipse2.png" style="position:absolute;top:50px;left:100px;">
+															<img class="user3" src="/img/Ellipse3.png" style="position:absolute;top:100px;left:105px;">
+															<img class="user6" src="/img/Ellipse6.png" style="position:absolute;top:30px;left:250px;">
+															<img class="user4" src="/img/Ellipse4.png" style="position:absolute;top:60px;left:350px;">
+															<img class="user5" src="/img/Ellipse5.png" style="position:absolute;top:100px;left:120px;">
+															<img class="user6" src="/img/Ellipse6.png" style="position:absolute;top:130px;left:230px;">
+															<img class="user7" src="/img/Ellipse1.png" style="position:absolute;top:160px;left:290px;">
+															<img class="user8" src="/img/Ellipse2.png" style="position:absolute;top:136px;left:300px;">
+															<img class="user9" src="/img/Ellipse3.png" style="position:absolute;top:190px;left:335px;">
+															<img class="user10" src="/img/Ellipse4.png" style="position:absolute;top:170px;left:50px;">
+															<img class="user11" src="/img/Ellipse5.png" style="position:absolute;top:150px;left:290px;">
+															<img class="user12" src="/img/Ellipse6.png" style="position:absolute;top:250px;left:260px;">
+															<img class="user1" src="/img/Ellipse1.png" style="position:absolute;top:200px;left:270px;">
+															<img class="user1" src="/img/Ellipse1.png" style="position:absolute;top:270px;left:210px;">
+															<img class="user1" src="/img/Ellipse1.png" style="position:absolute;top:306px;left:90px;">
+															<img class="user1" src="/img/Ellipse1.png" style="position:absolute;top:340px;left:270px;">
+															<img class="user2" src="/img/Ellipse2.png" style="position:absolute;top:250px;left:180px;">
+															<img class="user2" src="/img/Ellipse2.png" style="position:absolute;top:190px;left:130px;">
+															<img class="user2" src="/img/Ellipse2.png" style="position:absolute;top:360px;left:190px;">
+															<img class="user" src="/img/empty-states-app-vendas.png" style="height:50%">
+															<h2 style="margin-top:40px;">Aucune image n'a été signé a cette offre *
+															</h2>
+														</div>
+													</div>
+												</div>
+											{% endif %}
+										</div>
+										<div class="info">
+											<h2>Description :</h2>
+											<h3 class="contente" style="height:100px;overflow: auto;">{{ Offre.Description }}
+											</h3>
+											<h2>Date de creation de l'offre :
+												<spam class="contente">{{ Offre.createAt|date('d/m/Y H:m')}}</spam>
+											</h2>
+
+											<h2>Nombre d'etage :
+												<spam class="contente">{{ Offre.NombreEtage}}</spam>
+											</h2>
+											<h2>Nombre de salle de bain :
+												<spam class="contente">{{ Offre.NombreSalleBain}}</spam>
+											</h2>
+											<h2>Surface :
+												<spam class="contente">{{ Offre.Surface|number_format(2, ',', '.')}}
+													m<sup>2</sup>
+												</spam>
+											</h2>
+											<h2>Purcentage de verdure a Proximité :
+												<spam class="contente">{{ Offre.Verdure}}
+													%</spam>
+											</h2>
+											<h2>Nombre de parking :
+												<spam class="contente">{{ Offre.NombreParking}}</spam>
+											</h2>
+											<h2>Date de construction :
+												<spam class="contente">{{ Offre.ConstruiteAt|date('d/m/Y H:m')}}</spam>
+											</h2>
+											<h2>Adresse :
+												<spam class="contente">{{ Offre.quartier.nomQ}}
+													{{ Offre.quartier.ville.nom}}
+												</spam>
+											</h2>
+
+										</div>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				{% endif %}
+			</tbody>
+		</tbody>
+	</table>
+</div>
+ <script
+  src="https://code.jquery.com/jquery-3.5.1.min.js"
+  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+  crossorigin="anonymous"
+  type="text/javascript"
+  ></script>
+<script>
+ $(document).ready(function() {
+    var table = $('#myTable').DataTable();
+    
+} );
+   
+</script>
+
+{% endblock %}
