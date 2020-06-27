@@ -153,9 +153,6 @@ class ApiPostController extends AbstractController
                 'message'=> 'ellement manquant !'
             ] , 400 );
         }
-
-        
-        
         $response->headers->set('Access-Control-Allow-Origin','*');
         return $response;
     }
@@ -193,19 +190,19 @@ class ApiPostController extends AbstractController
                     }
                 }else{
                     $idC = $clientRepo->findOneBy(['user'=>$item]);
-                    $listelike = $AimeRepo->getLikes($idC);
-                    dump($listelike).die;
-                    foreach($listelike as $item){                       
-                        array_push($likes,$item->getOffre()->getId()); 
-                    }
+                    // $listelike = $AimeRepo->getLikes($idC);
+                    // dump($listelike).die;
+                    // foreach($listelike as $item){                       
+                    //     array_push($likes,$item->getOffre()->getId()); 
+                    // }
                 }
                 $response = $this->json([
                     'status'=> 200,
                     'message'=> "Utilisateur Existant",
                     'Profile'=> $Profile,
                     'userInfo' => $item,
-                    'vendeur_id'=> ($Vendeur != null)? $Vendeur->getId() : null,
-                    'like'=>$likes
+                    'vendeur_id'=> ($Vendeur != null)? $Vendeur->getId() : null
+                    //'like'=>$likes
             ], 200 );
             break;
             } else {
