@@ -25,14 +25,9 @@ class Client
      */
     private $user;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Aime::class, mappedBy="Client")
-     */
-    private $aimes;
 
     public function __construct()
     {
-        $this->aimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -52,34 +47,5 @@ class Client
         return $this;
     }
 
-    /**
-     * @return Collection|Aime[]
-     */
-    public function getAimes(): Collection
-    {
-        return $this->aimes;
-    }
 
-    public function addAime(Aime $aime): self
-    {
-        if (!$this->aimes->contains($aime)) {
-            $this->aimes[] = $aime;
-            $aime->setClient($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAime(Aime $aime): self
-    {
-        if ($this->aimes->contains($aime)) {
-            $this->aimes->removeElement($aime);
-            // set the owning side to null (unless already changed)
-            if ($aime->getClient() === $this) {
-                $aime->setClient(null);
-            }
-        }
-
-        return $this;
-    }
 }

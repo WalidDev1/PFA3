@@ -49,16 +49,21 @@ class AimeRepository extends ServiceEntityRepository
     */
     public function getLikes($user)
     {
-        $query =  $this->_em->createQueryBuilder();
-        $query
-            ->select('e.id')
-            ->from(Aime::class, "e")
-            ->leftJoin('e.Client', 'v')
-            ->andWhere('v = :Client')
-            ->setParameter('Client', $user)
-            ->addSelect('v');
-            
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.client', 'r')
+            ->andWhere('r.id = :val')
+            ->addSelect('r')
+            ->setParameter('val', $user)->getQuery()->getResult()
+        ;
+    }
 
-        return $query->getQuery()->getResult();
+    public function DeleteLikes($user)
+    {
+        return $this->createQueryBuilder('a')
+            ->delete('a.client', 'r')
+            ->andWhere('r.id = :val')
+            ->addSelect('r')
+            ->setParameter('val', $user)
+        ;
     }
 }

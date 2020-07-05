@@ -39,6 +39,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\VarDumper\VarDumper;
+use App\Services\Api\Serializer\ObjectSerializer;
+
 
 class ApiPostController extends AbstractController
 {
@@ -157,6 +159,8 @@ class ApiPostController extends AbstractController
         return $response;
     }
 
+
+
     /**
      * @Route("/api/checkUser", name="api_Usercheck_index" , methods={"POST"})
      */
@@ -164,7 +168,10 @@ class ApiPostController extends AbstractController
     {
         $Profile = 1; // 1 : Client , 2 : vendeur , 3 : vendeur Regulier , 4 : Agence
         $user = new User();
+        $idC = null;
         $Vendeur = new Vendeur();
+        $annonces = [] ;
+        $client = new Client();
         // typeP { 1 : client }
         $rep = $UserRepo->findAll();
         foreach ($rep  as $item){
@@ -181,6 +188,7 @@ class ApiPostController extends AbstractController
                     $Agence = $VendeurRepo->findOneBy([
                         "user" => $item,
                         ]);
+                        
                     if ($Vendeur != null){
                         $Profile = 2;
                     }else if ($VendeurRegulier != null){
@@ -188,23 +196,27 @@ class ApiPostController extends AbstractController
                     }else if ($Agence != null){
                         $Profile = 4;
                     }
+                     foreach ($Vendeur->getOffre() as $key => $val) {
+                       array_push($annonces ,$val->getId());
+                    }
                 }else{
                     $idC = $clientRepo->findOneBy(['user'=>$item]);
-                    // $listelike = $AimeRepo->getLikes($idC);
-                    // dump($listelike).die;
-                    // foreach($listelike as $item){                       
-                    //     array_push($likes,$item->getOffre()->getId()); 
-                    // }
+                    $listelike = $AimeRepo->getLikes($idC);
+                    foreach ($listelike as $key => $like) {
+                       array_push($likes,['id_Offre'=>$like->getOffre()[0]->getId()]);
+                    }
+                    
                 }
                 $response = $this->json([
                     'status'=> 200,
                     'message'=> "Utilisateur Existant",
                     'Profile'=> $Profile,
                     'userInfo' => $item,
-                    'vendeur_id'=> ($Vendeur != null)? $Vendeur->getId() : null
-                    //'like'=>$likes
-            ], 200 );
-            break;
+                    'client'=>($idC != null)? $idC : null,
+                    'vendeur_id'=> ($Vendeur != null)? ['id'=>$Vendeur->getId(),'annonces_id'=>$annonces] : null,
+                    'like'=>$likes
+                ], 200 );
+                break;
             } else {
                 $response = $this->json([
                     'status'=> 401,
@@ -228,9 +240,113 @@ class ApiPostController extends AbstractController
     }
 
     /**
+     * @Route("/api/UpdateOffre", name="UpdateOffre" , methods={"POST"})
+     */
+    public function UpdateOffre(OffreRepository $OffreRepo , Request $request , EntityManagerInterface $em)
+    {
+        $Offre = $OffreRepo->findOneBy(['id'=>$request->request->get('id')]);
+        ($request->request->get('titre')) ? $Offre->getTitre($request->request->get('titre')) : false ;
+        ($request->request->get('date'))? $Offre->getTitre($request->request->get('date')) : false ;
+        ($request->request->get('quatier'))? $Offre->getTitre($request->request->get('quatier')) : false ;
+        ($request->request->get('ville'))? $Offre->getTitre($request->request->get('ville')) : false ;
+        ($request->request->get('images'))? $Offre->getTitre($request->request->get('images')) : false ;
+        ($request->request->get('prix'))? $Offre->getTitre($request->request->get('prix')) : false ;
+        ($request->request->get('surface'))? $Offre->getTitre($request->request->get('surface')) : false ;
+        $response = $this->json([
+            'statut' => 200 ,
+            'message' => 'done'
+        ] , 200);
+        $response->headers->set('Access-Control-Allow-Origin','*');
+        return $response;
+    }
+    
+    /**
+     * @Route("/api/Update", name="Update" , methods={"POST"})
+     */
+    public function UpdateProfile(Request $request,UserRepository $UserRepo,ImagesRepository $imageRepo,EntityManagerInterface $em)
+    {
+        $reponse = [];
+        $user = $UserRepo->findOneBy([
+            'id'=>$request->request->get('id'),
+        ]);
+        if($user != null){
+            
+            if($request->files->get('image') != null){
+                $imagedb = new Images();
+                $images = $request->files->get('image');
+                $file = md5(uniqid()).'.'.$images->getClientOriginalExtension();
+                $images->move(
+                    $this->getParameter('images_directory'),
+                    $file
+                );
+                $imagedb->setUrl('/imagesUploadedT/'.$file);
+                $em->persist($imagedb);
+                $em->flush();
+                $imagecreated = $imageRepo->findOneBy([
+                    "url" => $imagedb->getUrl()
+                ]);
+                $user->setImage($imagecreated);
+            }
+            ($request->request->get('nom'))? $user->setNom($request->request->get('nom')) : false;
+            ($request->request->get('prenom'))? $user->setPrenom($request->request->get('prenom')) : false;
+            ($request->request->get('tele'))? $user->setNom($request->request->get('tele')) : false;
+            $em->persist($user);
+            $em->flush();
+            $reponse = $this->json([
+                'statut' => 200,
+                'message' => 'User modifier',
+            ],200);
+        }else{
+            $reponse = $this->json([
+                'statut' => 404,
+                'message' => 'User modifier',
+            ],404);
+        }
+        return $reponse;
+    }
+
+    /**
+     * @Route("/api/dislike", name="dislike" , methods={"POST"})
+     */
+    public function dislike(OffreRepository $OffreRepo,Request $request,ClientRepository $ClientRepo,AimeRepository $AimeRepo,EntityManagerInterface $em)
+    {
+        $reponse = "Done";
+        $statut = 201;
+
+        $Offre = $OffreRepo->findOneBy([
+            'id' => $request->request->get('id_offre')
+        ]);
+        $Client = $ClientRepo->findOneBy([
+            'id' => $request->request->get('id_client')
+        ]); 
+        $Aime = $AimeRepo->findOneBy([
+            'offre' => $Offre->getId(),
+            'client' => $Client->getId()
+        ]); 
+        dd($Aime);
+        if ($Offre == null) {
+            $reponse = "Offre introuvable";
+            $statut = 404;
+        } elseif ($Client == null) {
+            $reponse = "client introuvable";
+            $statut = 404;
+        }else{
+        $em->remove($Aime);
+        $em->flush();
+        }
+
+        $response = $this->json([
+            'statut'=>$statut,
+            'message'=>$reponse
+        ], $statut );
+        $response->headers->set('Access-Control-Allow-Origin','*');
+        return $response;
+    }
+
+    /**
      * @Route("/api/like", name="Like" , methods={"POST"})
      */
-    public function Like(OffreRepository $OffreRepo,Request $request,ClientRepository $ClientRepo,EntityManagerInterface $em)
+    public function like(OffreRepository $OffreRepo,Request $request,ClientRepository $ClientRepo,EntityManagerInterface $em)
     {
         $reponse = "Done";
         $statut = 201;
@@ -248,13 +364,12 @@ class ApiPostController extends AbstractController
             $reponse = "client introuvable";
             $statut = 404;
         }else{
-        $aime = new Aime();
-        $aime->setOffre($Offre);
-        $aime->setClient($Client);
-        $em->persist($aime);
-        $em->flush();
+            $aime = new Aime();
+            $aime->addOffre($Offre);
+            $aime->addClient($Client);
+            $em->persist($aime);
+            $em->flush();
         }
-        
         $response = $this->json([
             'statut'=>$statut,
             'message'=>$reponse
@@ -277,6 +392,7 @@ class ApiPostController extends AbstractController
         }
         $response = $this->json([
             'statut'=> 200,
+           
             'Vendeur'=>[
                 'id'=>$result->getVendeur()->getId(),
                 'nom'=>$result->getVendeur()->getUser()->getNom(),
@@ -352,6 +468,80 @@ class ApiPostController extends AbstractController
        
         $response->headers->set('Access-Control-Allow-Origin','*');
         return $response;
+    }
+
+    /**
+     * @Route("/api/Vendeur/{id}/{Pa}", name="api_Vendeur_info" , methods={"GET"})
+     */
+    public function getProfile($id = null , $Pa = null ,VendeurRepository $vendeurRepo , VendeurRegulierRepository $vendeurRrepo , AgenceRepository $agenceRepo)
+    {
+        $vendeur = null;
+        $res = null;
+        $annonces = [];
+        switch ($Pa) {
+            case '1':
+                $vendeur = $vendeurRrepo->findOneBy([
+                    'id'=>$id,
+                ]);  
+                break;
+            case '2':
+                $vendeur = $agenceRepo->findOneBy([
+                    'id'=>$id,
+                ]);  
+                break;
+            default:
+            $vendeur = $vendeurRepo->findOneBy([
+                'id'=>$id,
+            ]);  
+            $images = [];
+            foreach($vendeur->getOffre() as $val){
+                foreach($val->getImages() as $valImg){ 
+                    array_push($images,$valImg->getUrl());
+                }
+                array_push($annonces , [
+                    'id'=>$val->getId(),
+                    'titre'=>$val->getTitre(),
+                    'quartier' => [
+                        'nom'=>$val->getQuartier()->getNomQ(),
+                        'lat'=> $val->getQuartier()->getLat(),
+                        'long'=> $val->getQuartier()->getLog(),
+                    ],
+                    'ville'=>[
+                        'nom' => $val->getQuartier()->getVille()->getNom(),
+                        'lat' => $val->getQuartier()->getVille()->getLat(),
+                        'long' => $val->getQuartier()->getVille()->getLog(),
+                    ],
+                    'piece'=> $val->getPiece(),
+                    'salleBain' => $val->getNombreSalleBain(),
+                    'surface' => $val->getSurface(),
+                    'prix' => $val->getPrix(),
+                    'images'=>$images ,
+                ]);
+                
+            }
+            $res = [
+                'id_user'=>$vendeur->getUser()->getId(),
+                'nom' => $vendeur->getUser()->getNom(),
+                'prenom' => $vendeur->getUser()->getPrenom(),
+                'tele' => $vendeur->getUser()->getTelephone(),
+                'annonces' => $annonces,
+                'imageP'=>($vendeur->getUser()->getImage()) ? $vendeur->getUser()->getImage()->getUrl() : "",
+            ];
+                break;
+        }
+        if($vendeur != null){
+        $response = $this->json([
+            'status'=> 200,
+            'Vendeur'=> $res
+        ], 200 );
+        } else {
+        $response = $this->json([
+            'status'=> 404,
+            'message'=> "Vendeur n'existe pas !"
+        ], 404 );
+        }
+    $response->headers->set('Access-Control-Allow-Origin','*');
+    return $response;
     }
 
     /**

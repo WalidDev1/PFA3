@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AimeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -19,43 +21,77 @@ class Aime
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Offre::class, inversedBy="aimes")
-     * @ORM\JoinColumn(nullable=false)
-     * @Groups("post:aime")
+     * @ORM\ManyToMany(targetEntity=Offre::class)
      */
-    private $Offre;
+    private $offre;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="aimes" )
+     * @ORM\ManyToMany(targetEntity=Client::class)
      */
-    private $Client;
+    private $client;
+
+    public function __construct()
+    {
+        $this->offre = new ArrayCollection();
+        $this->client = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getOffre(): ?Offre
+    /**
+     * @return Collection|Offre[]
+     */
+    public function getOffre(): Collection
     {
-        return $this->Offre;
+        return $this->offre;
     }
 
-    public function setOffre(?Offre $Offre): self
+    public function addOffre(Offre $offre): self
     {
-        $this->Offre = $Offre;
+        if (!$this->offre->contains($offre)) {
+            $this->offre[] = $offre;
+        }
 
         return $this;
     }
 
-    public function getClient(): ?Client
+    public function removeOffre(Offre $offre): self
     {
-        return $this->Client;
-    }
-
-    public function setClient(?Client $Client): self
-    {
-        $this->Client = $Client;
+        if ($this->offre->contains($offre)) {
+            $this->offre->removeElement($offre);
+        }
 
         return $this;
     }
+
+    /**
+     * @return Collection|Client[]
+     */
+    public function getClient(): Collection
+    {
+        return $this->client;
+    }
+
+    public function addClient(Client $client): self
+    {
+        if (!$this->client->contains($client)) {
+            $this->client[] = $client;
+        }
+
+        return $this;
+    }
+
+    public function removeClient(Client $client): self
+    {
+        if ($this->client->contains($client)) {
+            $this->client->removeElement($client);
+        }
+
+        return $this;
+    }
+
 }

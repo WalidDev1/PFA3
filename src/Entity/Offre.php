@@ -131,10 +131,6 @@ class Offre
      */
     private $TypeContrat;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Aime::class, mappedBy="Offre", orphanRemoval=true)
-     */
-    private $aimes;
 
     
 
@@ -143,7 +139,6 @@ class Offre
         $this->images = new ArrayCollection();
         $this->consultations = new ArrayCollection();
         $this->signalements = new ArrayCollection();
-        $this->aimes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -438,36 +433,6 @@ class Offre
         return $this;
     }
 
-    /**
-     * @return Collection|Aime[]
-     */
-    public function getAimes(): Collection
-    {
-        return $this->aimes;
-    }
-
-    public function addAime(Aime $aime): self
-    {
-        if (!$this->aimes->contains($aime)) {
-            $this->aimes[] = $aime;
-            $aime->setOffre($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAime(Aime $aime): self
-    {
-        if ($this->aimes->contains($aime)) {
-            $this->aimes->removeElement($aime);
-            // set the owning side to null (unless already changed)
-            if ($aime->getOffre() === $this) {
-                $aime->setOffre(null);
-            }
-        }
-
-        return $this;
-    }
 
    
 }
